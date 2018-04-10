@@ -19,11 +19,11 @@ public class Chapter4_1 {
     }
 
     public static void main(String[] args){
-        int s[] = {1,3,0,5,3,5,6,8,8,2,12};
-        int f[] = {4,5,6,7,8,9,10,11,12,13,14};
-        boolean a[] = new boolean[11];
+        int s[] = {0,1,3,0,5,3,5,6,8,8,2,12};
+        int f[] = {0,4,5,6,7,8,9,10,11,12,13,14};
+        boolean a[] = new boolean[12];
         Chapter4_1.greedySelector(s,f,a);
-        for(int i = 0; i < 11; i++){
+        for(int i = 1; i <= 11; i++){
             System.out.print(a[i] + " ");
         }
     }
