@@ -16,114 +16,137 @@ import java.util.LinkedList;
 
 public class SuperHorse {
 
-    private class Node implements Comparable{
+    private class Node{
 
         int x, y;
-        int parent;
+        int[] r;
         
         public Node() {
-            parent = -1;
         }
 
         public Node(int xx, int yy) {
             x = xx;
             y = yy;
-            parent = -1;
+            r = null;
         }
 
+        public Node(int xx, int yy, int[] rr){
+            x = xx;
+            y = yy;
+            int len = rr.length;
+            r = new int[len];
+            for( int i=0; i < len; i++)
+                r[i] = rr[i];
+        }
         public Node next(int i) {
-            Node qq = new Node();
+            int xx=0, yy=0, k=0;
             switch (i) {
                 case 1:
-                    qq.x = x + 3;
-                    qq.y = y + 4;
+                    xx = x + 3;
+                    yy = y + 4;
                     break;
                 case 2:
-                    qq.x = x + 3;
-                    qq.y = y - 4;
+                    xx = x + 3;
+                    yy = y - 4;
                     break;
                 case 3:
-                    qq.x = x - 3;
-                    qq.y = y + 4;
+                    xx = x - 3;
+                    yy = y + 4;
                     break;
                 case 4:
-                    qq.x = x - 3;
-                    qq.y = y - 4;
+                    xx = x - 3;
+                    yy = y - 4;
                     break;
                 case 5:
-                    qq.x = x + 4;
-                    qq.y = y + 3;
+                    xx = x + 4;
+                    yy = y + 3;
                     break;
                 case 6:
-                    qq.x = x + 4;
-                    qq.y = y - 3;
+                    xx = x + 4;
+                    yy = y - 3;
                     break;
                 case 7:
-                    qq.x = x - 4;
-                    qq.y = y + 3;
+                    xx = x - 4;
+                    yy = y + 3;
                     break;
                 case 8:
-                    qq.x = x - 4;
-                    qq.y = y - 3;
+                    xx = x - 4;
+                    yy = y - 3;
                     break;
             }
+            Node qq = new Node(xx,yy,new int[r.length+1]);
+            
+            for(k=0; k < r.length; k++)
+                qq.r[k] = r[k];
+            qq.r[k] = x*n + y;
             return qq;
         }
 
         @Override
         public String toString() {
-            return "(" + x + ", " + y + "," + parent + ")";
+            return "(" + x + ", " + y  + ")";
         }
 
-        @Override
-        public int compareTo(Object o) {
-            int p = ((Node)o).parent;
-            if(parent < p) return 1;
-            if(parent == p) return 0;
-            return -1;
-            //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-    }
+     }
     
     private int n;//棋盘大小n-by-n
-
-    private int pan[][];//棋盘，初始为每个位置都为0，已走过则为1
     
-    private Node[] r;//路径
+    private int[] bestr;
+
+    private Node[] pos;//棋盘，初始为每个位置都为0，已走过则为1
+    
     private Queue<Node> queue;
 
     public SuperHorse(int nn) {
-        pan = new int[nn][nn];
+        n = nn;
+        bestr = new int[n*n];
+        
+        pos = new Node[nn*nn];
         for (int i = 0; i < nn; i++) {
             for (int j = 0; j < nn; j++) {
-                pan[i][j] = 0;
+                pos[i*n +j] = new Node(i,j);
             }
         }
-        n = nn;
-        r = new Node[n*n];
+    
         queue = new LinkedList<>();
     }
 
+    private boolean legal(Node N){
+        boolean flag;
+        flag = true;
+        if ((N.x >= 0 && N.x < n) && (N.y >= 0 && N.y < n)) {
+            
+        } else {
+            return false;
+        }
+        
+        //从后往前追查N节点是否已经访问
+        int j = N.r.length-1;
+        Node E;
+        while( N.r[j] >= 0){
+            E = pos[N.r[j]];
+            if( N.x == E.x && N.y == E.y){//该位置已在路径中
+                flag = false;
+                break;
+            }
+            j--;
+        }
+        return flag;
+    }
 
     public void search() {
-        Node E = new Node(0,0);
-        pan[0][0] = 1;
-        int dep = 0;
-        r[dep] = E;
-        //Node br[] = new Node[n*n];
-        boolean flag;
-        while (true) {
-            if (dep == n * n - 1) {
-                Arrays.sort(r);
-                return;
+        Node E = new Node(0,0,new int[1]);
+        E.r[0] = -1;
+         
+        do {
+            if (E.r.length == n * n) {//E是叶节点
+                break;
             }else {
                 for (int j = 1; j <= 8; j++) {
                     Node N = E.next(j);
-                    N.parent = dep;
-                    flag = (N.x >= 0 && N.x < n) && (N.y >= 0 && N.y < n);
-                    if (flag && pan[N.x][N.y] == 0) {
+                    
+                    if (legal(N)) {
                         queue.add(N);
-                        pan[N.x][N.y] = 1;
                     }
                 }
             }
@@ -131,26 +154,24 @@ public class SuperHorse {
                 break;
             } else {
                 E = queue.remove();
-                //pan[E.x][E.y] = 1;
-                dep ++;
-                r[dep] = E;
-                
             }
-            
-        }
+        }while(true);
         
+        System.arraycopy(E.r, 0, bestr, 0, n*n);
     }
 
     public void output(){
-        int i = 0;
-        for( Node node: r){
-            System.out.println(i + ":" + node + " ");
+        for( int i = 0; i < n*n; i++){
+            System.out.println(pos[bestr[i]]);
             i++;
         }
     }
+            
+    
     public static void main(String[] args) {
         SuperHorse sh = new SuperHorse(12);
         sh.search();
         sh.output();
+        
     }
 }
