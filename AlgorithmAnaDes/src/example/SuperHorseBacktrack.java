@@ -207,21 +207,7 @@ public class SuperHorseBacktrack {
             }
         }
     }
-
-    //计算节点n的下一步可达节点个数
-    private int nextNodeNum(Node n){
-        int k = 0;
-        for(int i = 0; i < 8; i++){
-            Node E = n.next();
-            if ( E.x < 0 || E.x >= 8 || E.y < 0 || E.y >=8 || pan[E.x][E.y] == 1){
-
-            }else{
-                k++;
-            }
-        }
-        return k;
-    }
-    
+ 
     public void output(){
         Node a[] = new Node[n*n];
         for(int i = 0; i < n; i++){
