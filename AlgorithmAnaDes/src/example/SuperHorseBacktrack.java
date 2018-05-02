@@ -41,7 +41,7 @@ public class SuperHorseBacktrack {
         }
 
         public Node next() {
-            int r=1, c=2;
+            int r=3, c=4;
             Node qq = new Node();
             switch (pos) {
                 case 1:
@@ -207,6 +207,20 @@ public class SuperHorseBacktrack {
             }
         }
     }
+
+    //计算节点n的下一步可达节点个数
+    private int nextNodeNum(Node n){
+        int k = 0;
+        for(int i = 0; i < 8; i++){
+            Node E = n.next();
+            if ( E.x < 0 || E.x >= 8 || E.y < 0 || E.y >=8 || pan[E.x][E.y] == 1){
+
+            }else{
+                k++;
+            }
+        }
+        return k;
+    }
     
     public void output(){
         Node a[] = new Node[n*n];
@@ -224,8 +238,8 @@ public class SuperHorseBacktrack {
 
     public static void main(String[] args) {
         SuperHorseBacktrack sh = new SuperHorseBacktrack(12);
-        sh.search();
-        sh.output();
-        //sh.search2();
+        //sh.search();
+        //sh.output();
+        sh.search2();
     }
 }
