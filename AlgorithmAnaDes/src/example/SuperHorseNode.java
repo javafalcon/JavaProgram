@@ -10,10 +10,10 @@ package example;
  * @author weizhong
  */
 public class SuperHorseNode {
-    //public static int sx[] = {0, 3, 3, -3, -3, 4, 4, -4, -4};
-    //public static int sy[] = {0, 4, -4, 4, -4, 3, -3, 3, -3};
-    public static int sx[] = {0, 1, 1, -1, -1, 2, 2, -2, -2};
-    public static int sy[] = {0, 2, -2, 2, -2, 1, -1, 1, -1};
+    public static int sx[] = {0, 3, 3, -3, -3, 4, 4, -4, -4};
+    public static int sy[] = {0, 4, -4, 4, -4, 3, -3, 3, -3};
+    //public static int sx[] = {0, 1, 1, -1, -1, 2, 2, -2, -2};
+    //public static int sy[] = {0, 2, -2, 2, -2, 1, -1, 1, -1};
     public int x, y;//棋盘上的位置坐标
     public int[] p;//8个方向的节点是否已访问的标记，p[i]=0(1<=i<=8)表示未访问
 

@@ -12,7 +12,7 @@ package example;
 
 import java.util.ArrayList;
 import java.util.Queue;
-import java.util.LinkedList;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  *
@@ -22,6 +22,7 @@ public class SuperHorseGreed {
 
     int n;//棋盘大小n-by-n
     int pan[][];//棋盘，初始为每个位置都为0，已走过则为1
+    boolean rute = false;
 
     public SuperHorseGreed(int nn) {
         n = nn;
@@ -41,7 +42,7 @@ public class SuperHorseGreed {
     public SuperHorseNode minOutEdgeNode(SuperHorseNode N) {
 
         SuperHorseNode bestE = null;
-        int x, y, bestx=-1, besty=-1;
+        int x, y, bestx = -1, besty = -1;
         int t, k = 0, bt = 9;
         for (int i = 1; i <= 8; i++) {
             if (N.p[i] == 0) {//方向i未访问
@@ -96,55 +97,61 @@ public class SuperHorseGreed {
 
     //递归回溯+贪心
     private void search(SuperHorseNode E, int t) {
-        System.out.println("(" + E.x + "," + E.y + ")" + t);
         pan[E.x][E.y] = t;
-        if (t == n * n ) {
+        if (t == n * n - 1) {
             output();
+            rute = true;
         } else {
             SuperHorseNode node = this.minOutEdgeNode(E);
             if (node != null) {
                 search(node, t + 1);
-                pan[E.x][E.y] = 0;
             }
+            pan[E.x][E.y] = 0;
         }
 
     }
 
     //非递归的回溯+贪心
-    public void search2() {
-        ArrayList<SuperHorseNode> a = new ArrayList<>();
-        int top = 0;
-        SuperHorseNode N = new SuperHorseNode(0, 0);
-        pan[0][0] = 1;
-        a.add(top, N);
+    public void search2(SuperHorseNode N) {
+        SuperHorseNode a[] = new SuperHorseNode[n * n];
+        int top = 0, count = 0, MAXC = n*n*n*n;
+        pan[N.x][N.y] = 1;
+        a[top] = N;
         SuperHorseNode E;
-        while (top < n * n -2 && !a.isEmpty()) {
-            E = a.get(top);
+        while (count < MAXC && top < n * n - 2 && top >= 0) {//因为最后一个位置的合法子节点的出边为0
+            count++;
+            E = a[top];
             SuperHorseNode T = minOutEdgeNode(E);
             if (T != null) {
-                a.add(T);//T的位置合法且还未遍历过，则入栈
-                pan[T.x][T.y] = 1;//棋盘上标记T的位置已遍历
                 top++;
-                System.out.println("in stact: " + top + "(" + T.x + "," + T.y + ")");
+                a[top] = T;//T的位置合法且还未遍历过，则入栈
+                pan[T.x][T.y] = 1;//棋盘上标记T的位置已遍历
+                //System.out.println("in stact: " + top + "(" + T.x + "," + T.y + ")");
             } else {//如果E已经没有下一个节点可去
-                E = a.remove(top);//E出栈
+                top--;//E出栈
                 pan[E.x][E.y] = 0;//标记棋盘上E的位置未遍历
-                top--;
+
             }
         }
-        if (a.isEmpty()) {
+        if (top < 0 || count == MAXC) {
             System.out.println("NO Resolve");
         } else {
-            top--;
             int j = 0;
-            while (!a.isEmpty()) {
-                N = a.remove(top);
-                top--;
-
-                System.out.print(N + " ");
-                j++;
-                if (j % 6 == 0) {
+            while (j <= top) {
+                N = a[j];
+                if (j % 8 == 0) {
                     System.out.print("\n");
+                }
+                System.out.print(N + " --> ");
+                j++;
+            }
+            //输出最后一个位置
+            int x, y;
+            for (int i = 1; i <= 8; i++) {
+                x = N.x + SuperHorseNode.sx[i];
+                y = N.y + SuperHorseNode.sy[i];
+                if (N.p[i] == 0 && legal(x, y)) {
+                    System.out.print("(" + x + "," + y + ")" + " --> End");
                 }
             }
         }
@@ -152,24 +159,53 @@ public class SuperHorseGreed {
 
     //输出结果
     public void output() {
-        SuperHorseNode a[] = new SuperHorseNode[n * n ];
+        SuperHorseNode a[] = new SuperHorseNode[n * n + 1];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                a[pan[i][j]-1] = new SuperHorseNode(i, j);
+                a[pan[i][j]] = new SuperHorseNode(i, j);
             }
         }
-        for (int i = 1; i <= n * n; i++) {
+
+        for (int i = 1; i <= n * n - 1; i++) {
+            System.out.print(a[i] + " --> ");
+
             if (i % 8 == 0) {
                 System.out.print("\n");
             }
-            System.out.println(a[i] + " ");
+        }
+        SuperHorseNode N = a[n * n - 1];
+        int x, y;
+        for (int i = 1; i <= 8; i++) {
+            x = N.x + SuperHorseNode.sx[i];
+            y = N.y + SuperHorseNode.sy[i];
+
+            if (N.p[i] == 0 && legal(x, y)) {
+                System.out.print("(" + x + "," + y + ")" + " --> End\n");
+            }
         }
 
     }
 
+
     public static void main(String[] args) {
-        SuperHorseGreed sg = new SuperHorseGreed(8);
-        sg.search2();
-        //sg.search(new SuperHorseNode(0, 0), 1);
+        int n = 12;
+        SuperHorseGreed sg = new SuperHorseGreed(n);
+        sg.search2(new SuperHorseNode(0, 0));
+ 
+        /*int k = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                SuperHorseGreed sg = new SuperHorseGreed(n);
+                sg.search(new SuperHorseNode(i, j), 1);
+                
+                if(sg.rute){
+                    k++;System.out.print("\n");
+                }
+            }
+        }
+        if( k > 0)
+            System.out.println("共有" + k + "个解");
+        else
+            System.out.println("无解");*/
     }
 }
