@@ -9,12 +9,11 @@ import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- *
  * @author weizhong
  */
 public class SuperHorseBranckAndBound {
 
-    class Node extends SuperHorseNode {
+    private class Node extends SuperHorseNode {
 
         int rute[];
 
@@ -67,78 +66,78 @@ public class SuperHorseBranckAndBound {
 
     private int n;//棋盘大小
 
+    public SuperHorseBranckAndBound(int nn){
+        n = nn;
+    }
     /**
      * 分支限界+贪心
      *
      * @param N
      */
-    public void search3(Node N) throws InterruptedException {
+    private void search3(Node N) throws InterruptedException {
         int Max = n * n * n;
         ArrayBlockingQueue<Node> queue = new ArrayBlockingQueue<>(Max);
         queue.put(N);
-        int dep = 1;
         Node E, T;
-        while( true){
-            if( dep == n*n)
-                break;
+        while (true) {
             E = queue.poll();
-            if( E == null)
+            //System.out.println(E);
+            if (E == null)
                 break;
-            for( int i = 1; i <= 8; i++){
-                T = E.next(i);
+            if (E.rute.length == n * n) {
+                outputRute(E);
+                break;
             }
-        }
 
-    }
-    
-    /**
-     * 寻找N的最少出边的合法子节点
-     * @param N
-     * @return 
-     */
-    public int[] minOutEdgeNode(Node N) {
-        int edgeIndx[] = new int[8];
-        HashTable<int,Node> ht = new Hash
-        Node bestE = null;
-        int x, y, bestx = -1, besty = -1;
-        int t, k = 0, bt = 9;
-        for (int i = 1; i <= 8; i++) {
-            
-                x = N.x + Node.sx[i];
-                y = N.y + Node.sy[i];
-                if (legal(x, y)) {//N在方向i上的子节点(x,y)是合法节点
-                    t = outEdgeNum(N, x, y);//(x,y)的出边数
-                    for(k=0; k <8; k++){
-                        if( t)
-                    }
+            for (int i = 1; i <= 8; i++) {
+                T = E.next(i);
+                if( legal(T.x, T.y) && !E.inRute(T.x,T.y)){
+                    queue.put(T);
                 }
             }
-        
-        if (k > 0) {//找到N的最优子节点为方向k的子节点
-            N.p[k] = 1;
-            bestE = new SuperHorseNode(bestx, besty);
         }
-        return bestE;
+
     }
 
-    //计算节点N的子节点(x,y)的出边数
-    public int outEdgeNum(Node N, int x, int y) {
-        int xx, yy, k = 0;
-        for (int i = 1; i <= 8; i++) {
-            xx = x + Node.sx[i];
-            yy = y + Node.sy[i];
-            if (legal(xx, yy) && !N.inRute(x, y)) {
-                k++;
-            }
-        }
-        return k;
-    }
-
-    public boolean legal(int x, int y){
+    public boolean legal(int x, int y) {
         boolean f = true;
-        if( x < 0 || x >= n || y < 0 || y >= n)
+        if (x < 0 || x >= n || y < 0 || y >= n)
             f = false;
         return f;
     }
 
+    /**
+     * 输出到达节点N的遍历路径
+     */
+    public void outputRute(Node N){
+        int len = N.rute.length;
+        int k,x,y;
+        System.out.print(N);
+        for(int i = len-1; i > 0; i--){
+            k = N.rute[i];
+            if( k != -1){//根节点
+                y = k%8;
+                x = k/8;
+                System.out.println("(" + x + "," + y + ") " );
+            }
+        }
+    }
+    /**
+     * 从(x,y)出发遍历棋盘
+     * @param x
+     * @param y
+     */
+    public void traverse(int x, int y){
+        Node N = new Node(x,y);
+        try {
+            search3(N);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args){
+        SuperHorseBranckAndBound horse = new SuperHorseBranckAndBound(8);
+        horse.traverse(0,0);
+    }
 }
