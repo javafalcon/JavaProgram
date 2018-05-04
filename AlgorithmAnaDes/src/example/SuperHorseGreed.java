@@ -188,7 +188,7 @@ public class SuperHorseGreed {
 
 
     public static void main(String[] args) {
-        int n = 12;
+        int n = 8;
         SuperHorseGreed sg = new SuperHorseGreed(n);
         sg.search2(new SuperHorseNode(0, 0));
  
